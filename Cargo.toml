@@ -18,5 +18,9 @@ serde = "1"
 rand = "0.8"
 serde_json = "1"
 angry-purple-tiger = "0"
-helium-crypto = { git = "https://github.com/helium/helium-crypto-rs", tag = "v0.3.1", features = ["ecc608"]}
+helium-crypto = { git = "https://github.com/TektelicCommunications/helium-crypto-rs", branch="ECC608-Single-Wire-Features", ref="6e72ac13e3d0f3adac8ebede000d16a143b15bd8" }
 
+[features]
+default = ["ecc608-i2c"]
+ecc608-i2c = ["helium-crypto/ecc608"]
+ecc608-swi = ["helium-crypto/ecc608-swi"]
