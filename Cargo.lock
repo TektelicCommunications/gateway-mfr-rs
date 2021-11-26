@@ -358,7 +358,7 @@ dependencies = [
 [[package]]
 name = "helium-crypto"
 version = "0.3.2-dev"
-source = "git+https://github.com/TektelicCommunications/helium-crypto-rs?branch=ECC608-Single-Wire-Features#6e72ac13e3d0f3adac8ebede000d16a143b15bd8"
+source = "git+https://github.com/TektelicCommunications/helium-crypto-rs?branch=ECC608-Single-Wire-Features#44fadaed56c3bb55e1ac0de02013e052ba8ee0af"
 dependencies = [
  "bs58",
  "ecc608-linux",

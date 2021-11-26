@@ -40,15 +40,80 @@ args = [
   "--release"
 ]
 
+[tasks.cargo_tektelic]
+description = "Runs the cargo rust compiler - Tektelic specific arguments."
+category = "Build"
+install_crate = false
+condition = { env_set = ["CROSS_TARGET"] }
+command = "cargo"
+args = [
+  "build",
+  "--target",
+  "${CROSS_TARGET}",
+  "--release",
+  "--features",
+  "ecc608-swi",
+  "--no-default-features"
+]
+
 [tasks.pkg]
 description = "Builds a package for a given packaging profile"
 category = "Package"
 condition = { env_set = ["PKG"]}
 env = { "PKG_NAME" = "gateway-mfr-rs_v${CARGO_MAKE_CRATE_VERSION}-${CARGO_MAKE_PROFILE}.${PKG}"}
 run_task = [
+    { name = "ipk_tektelic", condition = { env = { "PKG" = "ipk", "CARGO_MAKE_PROFILE" = "tektelic" } } },
 	{ name = "ipk", condition = { env = { "PKG" = "ipk" } } },
 	{ name = "deb", condition = { env = { "PKG" = "deb" } } }
 ]
+
+[tasks.ipk_tektelic]
+description = "Builds an ipk for openwrt/opk based targets"
+category = "Package"
+dependencies = ["cargo_tektelic"]
+condition = { env_set = ["CROSS_TARGET", "TAR", "AR", "PKG_NAME", "IPK_USE_AR"] }
+env = { "PKG_BUILD_DIR" = "target/pkg/${CARGO_MAKE_PROFILE}", "PKG_SRC_DIR" = "package/${CARGO_MAKE_PROFILE}" }
+script = '''
+	# make base folder
+	mkdir -p ${PKG_BUILD_DIR}
+	echo 2.0 > ${PKG_BUILD_DIR}/debian-binary
+
+	# install data files
+	cp -R ${PKG_SRC_DIR}/data ${PKG_BUILD_DIR}
+
+	# install binary
+	mkdir -p ${PKG_BUILD_DIR}/data/usr/bin
+	cp target/${CROSS_TARGET}/release/gateway_mfr ${PKG_BUILD_DIR}/data/usr/bin
+
+	# inject provision_ecc608.sh script
+	cp -R script/provision_ecc608.sh ${PKG_BUILD_DIR}/data/usr/bin/provision_ecc608
+
+	# install control files
+	mkdir -p ${PKG_BUILD_DIR}/control
+	export CARGO_MAKE_PROFILE CARGO_MAKE_CRATE_VERSION
+	for control_file in control preinst postinst prerm; do
+	    envsubst < ${PKG_SRC_DIR}/control/${control_file} > ${PKG_BUILD_DIR}/control/${control_file}
+	    chmod +x ${PKG_BUILD_DIR}/control/${control_file}
+	done
+
+    # package together
+	cd ${PKG_BUILD_DIR}/control
+	${TAR} --numeric-owner --group=0 --owner=0 -czf ../control.tar.gz ./*
+	cd ${CARGO_MAKE_WORKING_DIRECTORY}
+
+	cd ${PKG_BUILD_DIR}/data
+	${TAR} --numeric-owner --group=0 --owner=0 -czf ../data.tar.gz ./*
+	cd ${CARGO_MAKE_WORKING_DIRECTORY}
+
+	cd ${PKG_BUILD_DIR}
+	if ${IPK_USE_AR} ; then
+		rm -f ../${PKG_NAME}
+		${AR} r ../${PKG_NAME} ./debian-binary ./control.tar.gz ./data.tar.gz
+    else
+		${TAR} --numeric-owner --group=0 --owner=0 -czf ../${PKG_NAME} ./debian-binary ./data.tar.gz ./control.tar.gz
+	fi
+	cd ${CARGO_MAKE_WORKING_DIRECTORY}
+'''
 
 [tasks.ipk]
 description = "Builds an ipk for openwrt/opk based targets"
