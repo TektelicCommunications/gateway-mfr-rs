@@ -72,7 +72,7 @@ description = "Builds an ipk for openwrt/opk based targets"
 category = "Package"
 dependencies = ["cargo_tektelic"]
 condition = { env_set = ["CROSS_TARGET", "TAR", "AR", "PKG_NAME", "IPK_USE_AR"] }
-env = { "PKG_BUILD_DIR" = "target/pkg/${CARGO_MAKE_PROFILE}", "PKG_SRC_DIR" = "package/${CARGO_MAKE_PROFILE}" }
+env = { "PKG_BUILD_DIR" = "target/pkg/${CARGO_MAKE_PROFILE}", "PKG_SRC_DIR" = "package/${CARGO_MAKE_PROFILE}", "PKG_TEKTELIC_VERSION" = "2", "PKG_NAME" = "gateway-mfr-rs_v${CARGO_MAKE_CRATE_VERSION}-${CARGO_MAKE_PROFILE}${PKG_TEKTELIC_VERSION}.${PKG}" }
 script = '''
 	# make base folder
 	mkdir -p ${PKG_BUILD_DIR}
