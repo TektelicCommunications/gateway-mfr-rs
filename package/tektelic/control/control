@@ -1,5 +1,5 @@
 Package: gateway-mfr-rs
-Version: ${CARGO_MAKE_CRATE_VERSION}
+Version: ${CARGO_MAKE_CRATE_VERSION}-tektelic${PKG_TEKTELIC_VERSION}
 Architecture: kona
 Maintainer: info@helium.com
 Description: The gateway_mfr application provisions an attached ECC508/ECC608 for use as part of a Helium hotspot.

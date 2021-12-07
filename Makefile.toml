@@ -90,7 +90,7 @@ script = '''
 
 	# install control files
 	mkdir -p ${PKG_BUILD_DIR}/control
-	export CARGO_MAKE_PROFILE CARGO_MAKE_CRATE_VERSION
+	export CARGO_MAKE_PROFILE CARGO_MAKE_CRATE_VERSION PKG_TEKTELIC_VERSION
 	for control_file in control preinst postinst prerm; do
 	    envsubst < ${PKG_SRC_DIR}/control/${control_file} > ${PKG_BUILD_DIR}/control/${control_file}
 	    chmod +x ${PKG_BUILD_DIR}/control/${control_file}
