@@ -10,7 +10,7 @@ PKG_SRC_DIR = "package/${CARGO_MAKE_PROFILE}"
 
 
 [env.tektelic]
-CROSS_TARGET = "arm-unknown-linux-gnueabihf"
+CROSS_TARGET = "armv7-unknown-linux-gnueabihf"
 PKG = "ipk"
 IPK_USE_AR = true
 
@@ -40,12 +40,12 @@ args = [
   "--release"
 ]
 
-[tasks.cargo_tektelic]
+[tasks.cross-tektelic]
 description = "Runs the cargo rust compiler - Tektelic specific arguments."
 category = "Build"
 install_crate = false
 condition = { env_set = ["CROSS_TARGET"] }
-command = "cargo"
+command = "cross"
 args = [
   "build",
   "--target",
@@ -60,19 +60,19 @@ args = [
 description = "Builds a package for a given packaging profile"
 category = "Package"
 condition = { env_set = ["PKG"]}
-env = { "PKG_NAME" = "gateway-mfr-rs_v${CARGO_MAKE_CRATE_VERSION}-${CARGO_MAKE_PROFILE}.${PKG}"}
+env = { "PKG_NAME" = "gateway-mfr-rs-v${CARGO_MAKE_CRATE_VERSION}-${CARGO_MAKE_PROFILE}.${PKG}"}
 run_task = [
-    { name = "ipk_tektelic", condition = { env = { "PKG" = "ipk", "CARGO_MAKE_PROFILE" = "tektelic" } } },
+    { name = "ipk-tektelic", condition = { env = { "PKG" = "ipk", "CARGO_MAKE_PROFILE" = "tektelic" } } },
 	{ name = "ipk", condition = { env = { "PKG" = "ipk" } } },
 	{ name = "deb", condition = { env = { "PKG" = "deb" } } }
 ]
 
-[tasks.ipk_tektelic]
+[tasks.ipk-tektelic]
 description = "Builds an ipk for openwrt/opk based targets"
 category = "Package"
-dependencies = ["cargo_tektelic"]
+dependencies = ["cross-tektelic"]
 condition = { env_set = ["CROSS_TARGET", "TAR", "AR", "PKG_NAME", "IPK_USE_AR"] }
-env = { "PKG_BUILD_DIR" = "target/pkg/${CARGO_MAKE_PROFILE}", "PKG_SRC_DIR" = "package/${CARGO_MAKE_PROFILE}", "PKG_TEKTELIC_VERSION" = "2", "PKG_NAME" = "gateway-mfr-rs_v${CARGO_MAKE_CRATE_VERSION}-${CARGO_MAKE_PROFILE}${PKG_TEKTELIC_VERSION}.${PKG}" }
+env = { "PKG_BUILD_DIR" = "target/pkg/${CARGO_MAKE_PROFILE}", "PKG_SRC_DIR" = "package/${CARGO_MAKE_PROFILE}", "PKG_TEKTELIC_VERSION" = "2", "PKG_NAME" = "gateway-mfr-rs-v${CARGO_MAKE_CRATE_VERSION}-${CARGO_MAKE_PROFILE}${PKG_TEKTELIC_VERSION}.${PKG}" }
 script = '''
 	# make base folder
 	mkdir -p ${PKG_BUILD_DIR}
